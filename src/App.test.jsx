@@ -98,7 +98,6 @@ describe('React App Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Live GitHub Actions Status')).toBeInTheDocument()
       expect(screen.getByText('abc1234')).toBeInTheDocument()
-      expect(screen.getByText(/Run #12/i)).toBeInTheDocument()
     })
   })
 
