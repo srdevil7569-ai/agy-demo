@@ -12,10 +12,10 @@ describe('React App Component', () => {
 
   it('renders pipeline stages by default', () => {
     render(<App />)
-    expect(screen.getByText(/Lint & Static Analysis/i)).toBeInTheDocument()
-    expect(screen.getByText(/Automated Testing/i)).toBeInTheDocument()
-    expect(screen.getByText(/Production Build/i)).toBeInTheDocument()
-    expect(screen.getByText(/Deployment & Artifacts/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Lint & Static Analysis/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Automated Testing/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Production Build/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Deployment & Artifacts/i })).toBeInTheDocument()
   })
 
   it('allows switching to interactive counter tab and updating count', async () => {
@@ -56,7 +56,7 @@ describe('React App Component', () => {
     const stackTab = screen.getByRole('button', { name: /Technology Stack/i })
     await user.click(stackTab)
 
-    expect(screen.getByText(/Tailwind CSS 4/i)).toBeInTheDocument()
-    expect(screen.getByText(/GitHub Actions/i)).toBeInTheDocument()
+    expect(screen.getByText('Tailwind CSS 4')).toBeInTheDocument()
+    expect(screen.getByText('GitHub Actions')).toBeInTheDocument()
   })
 })
