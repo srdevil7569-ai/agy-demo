@@ -36,14 +36,14 @@ export const DEFAULT_PIPELINE_STAGES = [
   },
   {
     id: 4,
-    name: 'Deployment & Artifacts',
-    tool: 'GitHub Actions & Pages',
+    name: 'Netlify Deployment',
+    tool: 'GitHub Actions & Netlify',
     status: 'Automated',
     conclusion: null,
-    description: 'Deploys production build to GitHub Pages and packages Docker image.',
+    description: 'Deploys the production build to Netlify after a successful CI run.',
     command: 'git push origin main',
-    workflowFile: '.github/workflows/deploy.yml',
-    stepName: 'Deploy to GitHub Pages'
+    workflowFile: '.github/workflows/ci.yml',
+    stepName: 'Deploy to Netlify'
   }
 ]
 
@@ -155,7 +155,6 @@ export async function fetchGitHubPipelineStatus(repo = DEFAULT_REPO, { signal } 
     const runs = runsData.workflow_runs || []
 
     const ciRun = runs.find(r => r.path?.includes('ci.yml') || r.name?.includes('CI'))
-    const cdRun = runs.find(r => r.path?.includes('deploy.yml') || r.name?.includes('CD') || r.name?.includes('Deploy'))
 
     let ciSteps = []
     if (ciRun) {
@@ -172,24 +171,6 @@ export async function fetchGitHubPipelineStatus(repo = DEFAULT_REPO, { signal } 
       } catch (err) {
         if (err.name === 'AbortError') throw err
         // Fall back to overall ciRun conclusion
-      }
-    }
-
-    let cdSteps = []
-    if (cdRun) {
-      try {
-        const jobsRes = await fetch(`https://api.github.com/repos/${repo}/actions/runs/${cdRun.id}/jobs`, {
-          signal,
-          headers: { Accept: 'application/vnd.github.v3+json' }
-        })
-        if (jobsRes.ok) {
-          const jobsData = await jobsRes.json()
-          const primaryJob = jobsData.jobs?.[0]
-          cdSteps = primaryJob?.steps || []
-        }
-      } catch (err) {
-        if (err.name === 'AbortError') throw err
-        // Fall back to overall cdRun conclusion
       }
     }
 
@@ -237,30 +218,36 @@ export async function fetchGitHubPipelineStatus(repo = DEFAULT_REPO, { signal } 
         }
       }
       if (stage.id === 4) {
-        const step = cdSteps.find(s => s.name?.toLowerCase().includes('deploy') || s.name?.toLowerCase().includes('pages'))
-        const conclusion = cdRun ? cdRun.conclusion : null
-        const status = cdRun ? cdRun.status : 'Automated'
+        const step = ciSteps.find(s => s.name?.toLowerCase().includes('netlify'))
+        const conclusion = step ? step.conclusion : null
+        const status = step ? step.status : 'Automated'
+        const normalizedStatus = conclusion === 'success'
+          ? 'Passing'
+          : conclusion === 'failure'
+            ? 'Failed'
+            : conclusion === 'skipped'
+              ? 'Skipped'
+              : (status === 'completed' ? 'Automated' : status)
         return {
           ...stage,
           conclusion,
-          status: conclusion === 'success' ? 'Passing' : (conclusion === 'failure' ? 'Failed' : (status === 'completed' ? 'Automated' : status)),
-          runNumber: cdRun?.run_number,
-          runUrl: cdRun?.html_url,
-          headSha: cdRun?.head_sha?.slice(0, 7),
-          updatedAt: cdRun?.updated_at,
+          status: normalizedStatus,
+          runNumber: ciRun?.run_number,
+          runUrl: ciRun?.html_url,
+          headSha: ciRun?.head_sha?.slice(0, 7),
+          updatedAt: ciRun?.updated_at,
           stepFailure: step?.name
         }
       }
       return stage
     })
 
-    const latestRun = ciRun || cdRun || runs[0]
+    const latestRun = ciRun || runs[0]
 
     return {
       success: true,
       stages,
       ciRun,
-      cdRun,
       latestCommit: latestRun ? {
         message: latestRun.head_commit?.message || '',
         sha: latestRun.head_sha?.slice(0, 7) || '',

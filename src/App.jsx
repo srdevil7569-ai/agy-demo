@@ -96,7 +96,6 @@ export default function App() {
     stages: DEFAULT_PIPELINE_STAGES,
     latestCommit: null,
     ciRun: null,
-    cdRun: null,
     lastSyncedAt: null,
     isLive: false,
     error: null,
@@ -114,7 +113,6 @@ export default function App() {
           stages: data.stages,
           latestCommit: data.latestCommit,
           ciRun: data.ciRun,
-          cdRun: data.cdRun,
           lastSyncedAt: data.lastSyncedAt,
           isLive: true,
           error: null,
@@ -717,14 +715,14 @@ export default function App() {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs font-black text-pink-500 uppercase tracking-wider">CD Deployment</span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50" />
+                    <span className="text-xs font-black text-pink-500 uppercase tracking-wider">Netlify Deployment</span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
                   </div>
                   <div className={`text-sm font-bold font-mono ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                    .github/workflows/deploy.yml
+                    .github/workflows/ci.yml
                   </div>
                   <div className={`text-xs mt-2 font-medium ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                    Automated zero-config deployment to GitHub Pages.
+                    Builds, tests, and deploys the app to Netlify on main.
                   </div>
                 </div>
 

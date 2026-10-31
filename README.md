@@ -71,23 +71,21 @@ npm run preview
 
 ## 🔄 CI/CD Pipelines
 
-This repository is equipped with two GitHub Actions workflows:
+This repository uses one GitHub Actions workflow for CI and Netlify deployment, plus the Jenkins pipeline:
 
-### 1. Continuous Integration (`.github/workflows/ci.yml`)
-Triggers automatically on every `push` and `pull_request` targeting `main`:
+### 1. Continuous Integration & Netlify Deployment (`.github/workflows/ci.yml`)
+Triggers automatically on every `push` and `pull_request` targeting `main`, and manually via `workflow_dispatch`:
 - 🧪 **Install & Cache Dependencies**: Caches `npm` modules for accelerated execution.
 - 🔍 **Static Analysis**: Runs ESLint across the codebase.
 - ⚡ **Automated Tests**: Executes the Vitest test suite (`npm run test:run`).
 - 📦 **Production Bundle**: Validates compilation via `npm run build`.
 - 📁 **Artifact Archiving**: Stores the production build artifact for 7 days.
+- 🌐 **Netlify Deploy**: On `push`/`workflow_dispatch` to `main`/`master`, deploys `dist/` to Netlify (`NETLIFY_AUTH_TOKEN` + `NETLIFY_SITE_ID` repository secrets). Pull requests never deploy.
 
-### 2. Continuous Deployment (`.github/workflows/deploy.yml`)
-Triggers automatically on merges to `main` or manual trigger via `workflow_dispatch`:
-- 🏗️ Builds production bundle.
-- 🌐 Deploys the application directly to **GitHub Pages**.
-
-### 3. Jenkins → Netlify (`Jenkinsfile`)
+### 2. Jenkins → Netlify (`Jenkinsfile`)
 `Jenkinsfile` runs install → lint → test → build → archive, then deploys the `dist/` directory to **Netlify** on `main`/`master`. Docker images are still built afterwards on those branches. See [`JENKINS.md`](./JENKINS.md#netlify-deployment) for credentials and setup.
+
+Netlify is also deployed from the GitHub Actions CI workflow after the production build. That path uses the `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` **repository secrets** (`Settings > Secrets and variables > Actions`). Both paths are pinned to `netlify-cli@23.15.1`.
 
 ---
 

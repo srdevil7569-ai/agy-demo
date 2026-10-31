@@ -1,4 +1,4 @@
-name: CI - Lint, Test & Build
+name: CI - Lint, Test, Build & Deploy
 
 on:
   push:
@@ -40,3 +40,14 @@ jobs:
           name: production-build
           path: dist/
           retention-days: 7
+
+      - name: Deploy to Netlify
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          npx --yes --package netlify-cli@23.15.1 netlify deploy \
+            --dir=dist \
+            --prod \
+            --message "GitHub Actions ${GITHUB_SHA}"

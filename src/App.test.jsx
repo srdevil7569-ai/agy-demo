@@ -20,7 +20,7 @@ describe('React App Component', () => {
     expect(screen.getByRole('heading', { name: /Lint & Static Analysis/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Automated Testing/i })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /Production Build/i })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /Deployment & Artifacts/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /Netlify Deployment/i })).toBeInTheDocument()
   })
 
   it('renders GitHub Actions pipeline control bar', () => {
@@ -72,11 +72,11 @@ describe('React App Component', () => {
         },
         {
           id: 4,
-          name: 'Deployment & Artifacts',
-          tool: 'GitHub Actions & Pages',
+          name: 'Netlify Deployment',
+          tool: 'GitHub Actions & Netlify',
           status: 'Failed',
           conclusion: 'failure',
-          description: 'Deploys production build to GitHub Pages and packages Docker image.',
+          description: 'Deploys the production build to Netlify after a successful CI run.',
           command: 'git push origin main',
           runNumber: 8,
           runUrl: 'https://github.com/srdevil7569-ai/agy-demo/actions/runs/12346',
