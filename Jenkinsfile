@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        NODE_ENV = 'production'
-    }
-
     tools {
         // Ensure you configure a NodeJS tool named 'NodeJS-20' in Jenkins (Manage Jenkins > Tools)
         nodejs "NodeJS-20"
@@ -58,6 +54,12 @@ pipeline {
         }
 
         stage('Build') {
+            // Only the production build should run with NODE_ENV=production.
+            // Setting it globally makes npm skip devDependencies and makes
+            // React's production bundle (which has no React.act) load in tests.
+            environment {
+                NODE_ENV = 'production'
+            }
             steps {
                 sh 'npm run build'
             }
