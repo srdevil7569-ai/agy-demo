@@ -34,10 +34,12 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
+                    # NODE_ENV=production makes npm omit devDependencies, but lint,
+                    # test and build all need them. Install dev deps explicitly.
                     if [ -f package-lock.json ]; then
-                        npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+                        npm ci --legacy-peer-deps --include=dev || npm install --legacy-peer-deps --include=dev
                     else
-                        npm install --legacy-peer-deps
+                        npm install --legacy-peer-deps --include=dev
                     fi
                 '''
             }
