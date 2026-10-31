@@ -11,6 +11,7 @@ A modern React 19 web application built with Vite, Tailwind CSS v4, Vitest, and 
 - **Tailwind CSS v4**: Utility-first CSS styling powered by `@tailwindcss/vite`.
 - **Vitest & React Testing Library**: Component unit & integration tests with `happy-dom`.
 - **Automated CI/CD**: Complete GitHub Actions pipelines for linting, testing, building, and deployment.
+- **Netlify Deployment**: Jenkins publishes the production build to Netlify on `main`/`master` via the Netlify CLI.
 - **Docker Ready**: Multi-stage production Docker build served via lightweight NGINX Alpine.
 
 ---
@@ -84,6 +85,19 @@ Triggers automatically on every `push` and `pull_request` targeting `main`:
 Triggers automatically on merges to `main` or manual trigger via `workflow_dispatch`:
 - 🏗️ Builds production bundle.
 - 🌐 Deploys the application directly to **GitHub Pages**.
+
+### 3. Jenkins → Netlify (`Jenkinsfile`)
+`Jenkinsfile` runs install → lint → test → build → archive, then deploys the `dist/` directory to **Netlify** on `main`/`master`. Docker images are still built afterwards on those branches. See [`JENKINS.md`](./JENKINS.md#netlify-deployment) for credentials and setup.
+
+---
+
+## 🌐 Netlify Configuration
+
+- `netlify.toml` — build command (`npm run build`), publish directory (`dist`), Node `20.19.0`, and SPA redirects.
+- `public/_redirects` — SPA fallback (`/* /index.html 200`) copied into `dist/`.
+- `public/_headers` — immutable caching for hashed assets and revalidation for `index.html`.
+
+Jenkins deploys with the pinned `netlify-cli@23.15.1` and the `netlify-auth-token` / `netlify-site-id` credentials.
 
 ---
 

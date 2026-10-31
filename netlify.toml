@@ -1,0 +1,22 @@
+# Netlify configuration for agy-demo
+# Deploys are triggered by Jenkins, but these settings also support
+# Netlify's own Git integration / `netlify build` if you enable it later.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Some @csstools packages require Node >= 20.19.0
+  NODE_VERSION = "20.19.0"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+[context.production.environment]
+  NODE_ENV = "production"
+
+# SPA fallback. The same rule also ships in public/_redirects so it is
+# applied to prebuilt CLI deploys (Jenkins) as well.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
