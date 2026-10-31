@@ -41,13 +41,36 @@ jobs:
           path: dist/
           retention-days: 7
 
+      - name: Validate Netlify credentials
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          missing=0
+          if [ -z "${NETLIFY_AUTH_TOKEN}" ]; then
+            echo "::error::NETLIFY_AUTH_TOKEN is empty. Add a Netlify personal access token under Settings > Secrets and variables > Actions (repository secret), then re-run."
+            missing=1
+          fi
+          if [ -z "${NETLIFY_SITE_ID}" ]; then
+            echo "::error::NETLIFY_SITE_ID is empty. Add the Netlify project/site ID under Settings > Secrets and variables > Actions (repository secret), then re-run."
+            missing=1
+          fi
+          exit "${missing}"
+
       - name: Deploy to Netlify
         if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
+          # Pass the token and site explicitly so the CLI never falls back to
+          # its interactive login flow (which waits 5 minutes and fails with
+          # "Timed out waiting for authorization").
           npx --yes --package netlify-cli@23.15.1 netlify deploy \
+            --auth "$NETLIFY_AUTH_TOKEN" \
+            --site "$NETLIFY_SITE_ID" \
             --dir=dist \
             --prod \
+            --no-build \
             --message "GitHub Actions ${GITHUB_SHA}"

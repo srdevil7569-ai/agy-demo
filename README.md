@@ -87,6 +87,15 @@ Triggers automatically on every `push` and `pull_request` targeting `main`, and 
 
 Netlify is also deployed from the GitHub Actions CI workflow after the production build. That path uses the `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` **repository secrets** (`Settings > Secrets and variables > Actions`). Both paths are pinned to `netlify-cli@23.15.1`.
 
+> **Troubleshooting: `Timed out waiting for authorization`**
+>
+> This means the CLI did not see an auth token and fell back to interactive `netlify login`. In CI that can only time out. Fix it by adding both **repository** secrets (not environment secrets) with these exact names:
+>
+> - `NETLIFY_AUTH_TOKEN` — a Netlify personal access token from `User settings > Applications > Personal access tokens`.
+> - `NETLIFY_SITE_ID` — the site's **Project ID** from `Site configuration > General > Site details`.
+>
+> Paste the raw token with no `Bearer ` prefix or quotes. The workflow now validates both secrets before deploying and fails immediately with an explicit error if either is empty.
+
 ---
 
 ## 🌐 Netlify Configuration
